@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Ethics Advisor — Intelligent Moral Guidance</title>
+  <meta name="description" content="Get expert AI-powered ethical analysis across general, AI, business, medical, legal, and environmental domains." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Particles canvas -->
+  <canvas id="particles"></canvas>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Overlay -->
+  <div id="overlay" class="overlay" onclick="closeAll()"></div>
+
+  <!-- ═══════════════════════════════════════════════════════ SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo">⚖️</div>
+      <div>
+        <div class="sb-title">Ethics AI</div>
+        <div class="sb-sub">Advisor v2.0</div>
+      </div>
+    </div>
+
+    <nav class="sb-nav">
+      <button class="sb-btn active" onclick="showSection('chat')" id="navChat">
+        <i class="fas fa-comments"></i> Chat
+      </button>
+      <button class="sb-btn" onclick="openHistory()" id="navHistory">
+        <i class="fas fa-history"></i> History
+      </button>
+      <button class="sb-btn" onclick="openFrameworks()" id="navFrameworks">
+        <i class="fas fa-book-open"></i> Frameworks
+      </button>
+      <button class="sb-btn" onclick="openShortcuts()" id="navShortcuts">
+        <i class="fas fa-keyboard"></i> Shortcuts
+      </button>
+    </nav>
+
+    <!-- Server status -->
+    <div class="sb-status">
+      <div class="s-dot" id="sDot"></div>
+      <span id="sText">Checking server…</span>
+    </div>
+
+    <!-- Stats -->
+    <div class="sb-stats">
+      <div class="stat-item">
+        <div class="stat-val" id="statQueries">0</div>
+        <div class="stat-lbl">Queries</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" id="statRating">—</div>
+        <div class="stat-lbl">Avg Rating</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" id="statTime">00:00</div>
+        <div class="stat-lbl">Session</div>
+      </div>
+    </div>
+
+    <!-- Theme + actions -->
+    <div class="sb-actions">
+      <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme" id="themeBtn">
+        <i class="fas fa-moon" id="themeIcon"></i>
+      </button>
+      <button class="icon-btn" onclick="shareConvo()" title="Share conversation">
+        <i class="fas fa-share-nodes"></i>
+      </button>
+      <button class="icon-btn" onclick="exportPDF()" title="Export PDF">
+        <i class="fas fa-file-pdf"></i>
+      </button>
+      <button class="icon-btn" onclick="clearChat()" title="Clear chat">
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════════════ MAIN -->
+  <main class="main">
+
+    <!-- ── Top bar ───────────────────────────────────────────── -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="page-title">AI Ethics Advisor</span>
+        <span class="msg-count" id="msgCountEl">0 messages</span>
+      </div>
+      <div class="topbar-right">
+        <!-- Location badge -->
+        <div class="loc-badge" id="locBadge" style="display:none">
+          <i class="fas fa-location-dot"></i>
+          <span id="locationText"></span>
+        </div>
+        <button class="loc-btn" id="locBtn" onclick="getLocation()">
+          <i class="fas fa-map-marker-alt"></i><span>Location</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ── Daily fact banner ──────────────────────────────────── -->
+    <div class="fact-banner" id="factBanner">
+      <div class="fact-inner">
+        <span class="fact-label">💡 Loading insight…</span>
+        <p class="fact-text" id="factText">Fetching today's ethics insight from Groq AI…</p>
+      </div>
+      <button class="fact-refresh" id="factRefreshBtn" onclick="loadDailyFact()" title="New insight">
+        <i class="fas fa-rotate-right"></i>
+      </button>
+    </div>
+
+    <!-- ── Chat area ──────────────────────────────────────────── -->
+    <div class="chat-wrap">
+      <div class="chat-box" id="chatBox">
+        <!-- Welcome state -->
+        <div class="welcome" id="welcomeState">
+          <div class="welcome-icon">⚖️</div>
+          <h2 class="welcome-title">AI Ethics Advisor</h2>
+          <p class="welcome-desc">Ask any ethical question and receive structured, multi-framework analysis powered by Groq AI.</p>
+          <div class="chip-row">
+            <button class="chip" onclick="useChip(this)">Is AI surveillance ethical?</button>
+            <button class="chip" onclick="useChip(this)">Can lying ever be justified?</button>
+            <button class="chip" onclick="useChip(this)">Is gene editing morally right?</button>
+            <button class="chip" onclick="useChip(this)">Should companies pay fair wages?</button>
+            <button class="chip" onclick="useChip(this)">Privacy vs national security?</button>
+            <button class="chip" onclick="useChip(this)">Ethics of self-driving cars?</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Input area ─────────────────────────────────────────── -->
+    <div class="input-panel">
+      <!-- Framework tag -->
+      <div class="fw-tag">
+        <i class="fas fa-scale-balanced"></i>
+        <span id="frameworkTagText">Consequentialism · Deontology · Virtue Ethics</span>
+      </div>
+      <!-- Input row -->
+      <div class="input-row">
+        <select id="category" onchange="onCategoryChange()">
+          <option value="general">🌐 General</option>
+          <option value="ai">🤖 AI Ethics</option>
+          <option value="business">💼 Business</option>
+          <option value="medical">🏥 Medical</option>
+          <option value="education">🎓 Education</option>
+          <option value="legal">⚖️ Legal</option>
+          <option value="environmental">🌿 Environmental</option>
+          <option value="social">🤝 Social</option>
+          <option value="technology">💻 Technology</option>
+        </select>
+        <div class="textarea-wrap">
+          <textarea id="question" placeholder="Describe your ethical dilemma…" maxlength="1000" rows="1"></textarea>
+          <span class="char-count" id="charCount">0 / 1000</span>
+        </div>
+        <button class="voice-btn" id="voiceBtn" onclick="startVoice()" title="Voice input">
+          <i class="fas fa-microphone"></i>
+        </button>
+        <button class="send-btn" id="sendBtn" onclick="getAdvice()">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════ HISTORY PANEL -->
+  <div class="panel" id="hPanel">
+    <div class="panel-head">
+      <h3><i class="fas fa-history"></i> Conversation History</h3>
+      <div class="panel-actions">
+        <button class="sm-btn" onclick="clearHistory()"><i class="fas fa-trash"></i> Clear</button>
+        <button class="sm-btn" onclick="closeAll()"><i class="fas fa-xmark"></i></button>
+      </div>
+    </div>
+    <div class="panel-body" id="hList"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ FRAMEWORKS PANEL -->
+  <div class="panel" id="fwPanel">
+    <div class="panel-head">
+      <h3><i class="fas fa-book-open"></i> Ethics Frameworks & Books</h3>
+      <button class="sm-btn" onclick="closeAll()"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="panel-body">
+      <div class="fw-grid">
+        <div class="fw-card purple" onclick="lookupConcept('Utilitarianism')">
+          <div class="fw-icon">📊</div>
+          <div class="fw-name">Utilitarianism</div>
+          <div class="fw-desc">Greatest good for greatest number</div>
+        </div>
+        <div class="fw-card cyan" onclick="lookupConcept('Deontological ethics')">
+          <div class="fw-icon">📜</div>
+          <div class="fw-name">Deontology</div>
+          <div class="fw-desc">Duty-based moral rules</div>
+        </div>
+        <div class="fw-card green" onclick="lookupConcept('Virtue ethics')">
+          <div class="fw-icon">🌟</div>
+          <div class="fw-name">Virtue Ethics</div>
+          <div class="fw-desc">Character-centered morality</div>
+        </div>
+        <div class="fw-card amber" onclick="lookupConcept('Ethics of care')">
+          <div class="fw-icon">💛</div>
+          <div class="fw-name">Care Ethics</div>
+          <div class="fw-desc">Relationships and empathy</div>
+        </div>
+        <div class="fw-card blue" onclick="lookupConcept('Rawlsian justice')">
+          <div class="fw-icon">⚖️</div>
+          <div class="fw-name">Rawlsian Justice</div>
+          <div class="fw-desc">Fairness from behind the veil</div>
+        </div>
+        <div class="fw-card red" onclick="lookupConcept('Moral relativism')">
+          <div class="fw-icon">🌍</div>
+          <div class="fw-name">Moral Relativism</div>
+          <div class="fw-desc">Ethics vary by culture</div>
+        </div>
+      </div>
+      <div class="books-section">
+        <div class="books-head">
+          <h4>📚 Recommended Books</h4>
+          <button class="sm-btn" onclick="loadBooks('ethics')">
+            <i class="fas fa-rotate-right" id="bookRefreshIcon"></i> Refresh
+          </button>
+        </div>
+        <div class="books-grid" id="booksGrid">
+          <p class="h-empty">Click a framework or refresh to load books.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ SHORTCUTS MODAL -->
+  <div class="modal" id="shortcutsModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h3>
+        <button class="sm-btn" onclick="closeAll()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <table class="shortcuts-table">
+          <tr><td><kbd>Enter</kbd></td><td>Send message</td></tr>
+          <tr><td><kbd>Shift+Enter</kbd></td><td>New line</td></tr>
+          <tr><td><kbd>Ctrl+L</kbd></td><td>Clear chat</td></tr>
+          <tr><td><kbd>Ctrl+H</kbd></td><td>Open history</td></tr>
+          <tr><td><kbd>Ctrl+F</kbd></td><td>Open frameworks</td></tr>
+          <tr><td><kbd>Ctrl+D</kbd></td><td>Toggle dark/light</td></tr>
+          <tr><td><kbd>Ctrl+P</kbd></td><td>Export PDF</td></tr>
+          <tr><td><kbd>?</kbd></td><td>Show shortcuts</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ CONCEPT MODAL -->
+  <div class="modal" id="conceptModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 id="conceptTitle">Concept</h3>
+        <button class="sm-btn" onclick="closeAll()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" id="conceptBody"></div>
+      <div class="modal-foot">
+        <a id="conceptLink" href="#" target="_blank" class="link-btn" style="display:none">
+          <i class="fas fa-arrow-up-right-from-square"></i> Read on Wikipedia
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="index.js"></script>
+</body>
+</html>
